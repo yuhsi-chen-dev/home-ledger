@@ -1,0 +1,21 @@
+# 依賴
+node_modules/
+
+# 建置產物
+.next/
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# 環境變數與金鑰
+.env
+.env.*
+!.env.example
+
+# 收據／發票照片（含真實金額與匯款帳號）
+receipts/
+
+# 系統與編輯器
+.DS_Store
+*.log
+.vscode/
+.idea/

@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/* ponytail: 淺色單一主題。深色模式等真的晚上看不順眼再加。 */
+:root {
+  color-scheme: light;
+}
+
+/* 收據紙的鋸齒撕邊：純 CSS mask，不用圖片、不用套件。 */
+.receipt {
+  --zig: 12px;
+  mask:
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom /
+      var(--zig) calc(var(--zig) / 2) repeat-x,
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top /
+      var(--zig) calc(var(--zig) / 2) repeat-x,
+    linear-gradient(#000 0 0) center / 100% calc(100% - var(--zig)) no-repeat;
+}
+
+/* 品名與金額之間的點點引導線。 */
+.leader {
+  flex: 1;
+  border-bottom: 1px dotted currentColor;
+  opacity: 0.35;
+  margin-bottom: 0.28em;
+}
+
+/* 假條碼，純裝飾。 */
+.barcode {
+  height: 38px;
+  background: repeating-linear-gradient(
+    90deg,
+    #000 0 2px,
+    #0000 2px 4px,
+    #000 4px 5px,
+    #0000 5px 9px,
+    #000 9px 12px,
+    #0000 12px 14px
+  );
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  .receipt {
+    mask: none;
+    box-shadow: none;
+  }
+}
