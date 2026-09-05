@@ -39,7 +39,7 @@ export default async function Receipt() {
       </div>
 
       {/* 出紙口：紙從這條縫吐出來。 */}
-      <div className="no-print h-2.5 w-full rounded-t-md bg-stone-800" />
+      <div className="no-print h-2.5 w-full rounded-t-md bg-stone-700" />
 
       <article className="receipt bg-white px-6 py-8 font-mono text-[13px] leading-relaxed text-stone-900 shadow-xl">
         <header className="text-center">

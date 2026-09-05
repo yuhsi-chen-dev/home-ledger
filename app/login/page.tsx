@@ -19,7 +19,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             placeholder="密碼"
             className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-center outline-none focus:border-stone-400 focus:bg-white"
           />
-          <SubmitButton className="rounded-xl bg-stone-900 px-3 py-2 font-medium text-white transition active:scale-[0.99]">
+          <SubmitButton className="rounded-xl bg-stone-700 px-3 py-2 font-medium text-white transition active:scale-[0.99]">
             開機
           </SubmitButton>
           {error && <p className="text-sm text-red-600">密碼不對。</p>}
