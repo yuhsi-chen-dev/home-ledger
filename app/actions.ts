@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { getDb } from "@/db/index.ts";
 import { expenses } from "@/db/schema.ts";
-import { CATEGORIES, METHODS, SPLITS, today } from "@/lib/money.ts";
+import { CUSTOM_CATEGORY, CUSTOM_ICONS, METHODS, SPLITS, today } from "@/lib/money.ts";
 import { PERSON_IDS } from "@/lib/people.ts";
 
 const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "日期格式須為 YYYY-MM-DD");
@@ -20,7 +20,8 @@ const Input = z.object({
   date: ymd,
   title: z.string().trim().min(1, "請填項目名稱").max(100),
   amount: z.coerce.number().int("金額須為整數元").positive("金額須大於 0").max(100_000_000),
-  category: z.enum(CATEGORIES),
+  // 內建類別或臨時自訂的名字都存在同一欄，所以這裡是自由文字。
+  category: z.string().trim().min(1).max(20),
   vendor: z.string().trim().min(1, "請填收款人").max(100),
   projectGroup: optionalText,
   dueDate: optionalDate,
@@ -30,8 +31,26 @@ const Input = z.object({
   note: optionalText,
 });
 
+// 表單上「＋ 自訂」的兩個附加欄位，不是資料庫欄位，所以跟 Input 分開。
+const Custom = z.object({
+  customCategory: z.string().trim().max(20).default(""),
+  customIcon: z.string().trim().max(8).default(""),
+});
+
+/**
+ * 「＋ 自訂」是一次性的：名字直接存進 category，選到的 emoji 存進 categoryIcon，
+ * 不會被加進 lib/money.ts 的 CATEGORIES，下次打單磁磚上也不會多一塊。
+ */
+function resolveCategory(category: string, raw: Record<string, unknown>) {
+  if (category !== CUSTOM_CATEGORY) return { category, categoryIcon: null };
+  const { customCategory, customIcon } = Custom.parse(raw);
+  if (!customCategory) redirect("/?error=" + encodeURIComponent("自訂類別要填名稱"));
+  return { category: customCategory, categoryIcon: customIcon || CUSTOM_ICONS[0] };
+}
+
 export async function addExpense(formData: FormData) {
-  const parsed = Input.safeParse(Object.fromEntries(formData));
+  const raw = Object.fromEntries(formData);
+  const parsed = Input.safeParse(raw);
   if (!parsed.success) redirect(`/?error=${encodeURIComponent(parsed.error.issues[0]!.message)}`);
   const v = parsed.data;
 
@@ -42,6 +61,7 @@ export async function addExpense(formData: FormData) {
   // （lib/money.ts 的 share() 算出來是 0），不需要再存一個 true 去表示同一件事。
   await getDb().insert(expenses).values({
     ...v,
+    ...resolveCategory(v.category, raw),
     id: crypto.randomUUID(),
     paid,
     paidDate: paid ? v.date : null,
@@ -64,11 +84,15 @@ const Update = Input.extend({
 });
 
 export async function updateExpense(formData: FormData) {
-  const parsed = Update.safeParse(Object.fromEntries(formData));
+  const raw = Object.fromEntries(formData);
+  const parsed = Update.safeParse(raw);
   if (!parsed.success) redirect(`/?error=${encodeURIComponent(parsed.error.issues[0]!.message)}`);
   const { id: rowId, ...values } = parsed.data;
 
-  await getDb().update(expenses).set(values).where(eq(expenses.id, rowId));
+  await getDb()
+    .update(expenses)
+    .set({ ...values, ...resolveCategory(values.category, raw) })
+    .where(eq(expenses.id, rowId));
   revalidatePath("/");
   // 表單開關記在網址上，導回沒有 ?edit 的網址就等於收起來。
   redirect(formData.get("tab") === "paid" ? "/?tab=paid" : "/");

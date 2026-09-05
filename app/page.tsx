@@ -5,6 +5,9 @@ import { expenses, type Expense } from "@/db/schema.ts";
 import {
   CATEGORIES,
   CATEGORY_ICON,
+  CUSTOM_CATEGORY,
+  CUSTOM_ICONS,
+  iconOf,
   METHODS,
   SPLITS,
   SPLIT_LABEL,
@@ -249,13 +252,45 @@ function ExpenseFields({ r }: { r?: Expense }) {
       </div>
 
       <Group label="點什麼">
-        <div className="grid grid-cols-4 gap-2">
-          {CATEGORIES.map((c, i) => (
-            <Tile key={c} name="category" value={c} defaultChecked={r ? r.category === c : i === 0} stacked>
-              <span className="text-xl">{CATEGORY_ICON[c]}</span>
-              {c}
-            </Tile>
-          ))}
+        <div className="group/cat">
+          <div className="grid grid-cols-4 gap-2">
+            {/* 編輯一筆用過的自訂類別時，把它也排成一塊磁磚，才不用重打一次。 */}
+            {r && !CATEGORIES.includes(r.category as (typeof CATEGORIES)[number]) && (
+              <Tile name="category" value={r.category} defaultChecked stacked>
+                <span className="text-xl">{iconOf(r)}</span>
+                {r.category}
+              </Tile>
+            )}
+            {CATEGORIES.map((c, i) => (
+              <Tile key={c} name="category" value={c} defaultChecked={r ? r.category === c : i === 0} stacked>
+                <span className="text-xl">{CATEGORY_ICON[c]}</span>
+                {c}
+              </Tile>
+            ))}
+            <label className="flex cursor-pointer select-none flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-stone-300 px-2 py-2 text-center text-xs text-stone-500 transition has-[:checked]:border-solid has-[:checked]:border-stone-800 has-[:checked]:bg-stone-800 has-[:checked]:text-white">
+              <input type="radio" name="category" value={CUSTOM_CATEGORY} data-custom="" className="sr-only" />
+              <span className="text-xl">＋</span>
+              自訂
+            </label>
+          </div>
+
+          {/* 選了「＋ 自訂」才展開；純 CSS，沒有 client state。 */}
+          <div className="mt-3 hidden flex-col gap-2 group-has-[[data-custom]:checked]/cat:flex">
+            <input
+              name="customCategory"
+              maxLength={20}
+              placeholder="類別名稱，例如：油漆"
+              className={input}
+            />
+            <div className="grid grid-cols-8 gap-2">
+              {CUSTOM_ICONS.map((e, i) => (
+                <Tile key={e} name="customIcon" value={e} defaultChecked={i === 0}>
+                  <span className="text-lg">{e}</span>
+                </Tile>
+              ))}
+            </div>
+            <p className="text-xs text-stone-400">只用在這一筆，不會加進上面的磁磚。</p>
+          </div>
         </div>
       </Group>
 
@@ -364,7 +399,7 @@ function Row({ r, editId, base, tab, editHref }: { r: Expense } & RowLinks) {
     <article id={`e-${r.id}`} className="rounded-2xl bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-stone-100 text-lg">
-          {CATEGORY_ICON[r.category]}
+          {iconOf(r)}
         </span>
         <div className="min-w-0 flex-1">
           <p className="font-medium">{r.title}</p>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { asc } from "drizzle-orm";
 import { getDb } from "@/db/index.ts";
 import { expenses, type Expense } from "@/db/schema.ts";
-import { CATEGORY_ICON, SPLIT_LABEL, share, summarize, selfContained, twd } from "@/lib/money.ts";
+import { iconOf, SPLIT_LABEL, share, summarize, selfContained, twd } from "@/lib/money.ts";
 import { PEOPLE, nameOf, other } from "@/lib/people.ts";
 import { PrintButton } from "./print-button.tsx";
 import { LinkSpinner } from "../ui.tsx";
@@ -63,7 +63,7 @@ export default async function Receipt() {
               {items.map((r) => (
                 <div key={r.id} className="mt-1">
                   <Line
-                    left={`${CATEGORY_ICON[r.category]} ${r.title}`}
+                    left={`${iconOf(r)} ${r.title}`}
                     right={twd(r.amount)}
                     bold
                   />

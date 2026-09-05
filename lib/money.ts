@@ -1,6 +1,13 @@
 import { other, type PersonId } from "./people.ts";
 
+/** 內建類別（磁磚上固定有的那幾塊）。打單時可以臨時自訂一個，那種不會加進這裡。 */
 export const CATEGORIES = ["木工", "水電", "冷氣", "軟裝", "公共分攤", "家電", "雜支"] as const;
+
+/** 打單表單裡代表「自訂一個一次性類別」的哨兵值。 */
+export const CUSTOM_CATEGORY = "__custom";
+
+/** 自訂類別可以挑的圖示；不想挑就用第一個。 */
+export const CUSTOM_ICONS = ["🏷️", "🪵", "🚪", "🪟", "🧱", "🎨", "🪴", "📦"] as const;
 export const METHODS = ["轉帳", "信用卡", "現金"] as const;
 export const SPLITS = ["half", "verna_only", "miki_only"] as const;
 
@@ -72,6 +79,13 @@ export const twd = (n: number) => `$${n.toLocaleString("en-US")}`;
  * en-CA 的短日期格式剛好就是 YYYY-MM-DD。
  */
 export const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Taipei" });
+
+/**
+ * 一筆支出要顯示的類別圖示：自訂類別帶著自己的 icon，內建的查表，
+ * 都沒有就給一張收據。
+ */
+export const iconOf = (row: { category: string; categoryIcon: string | null }) =>
+  row.categoryIcon ?? CATEGORY_ICON[row.category as Category] ?? "🧾";
 
 /** 收銀台磁磚與收據上的類別圖示。跟 CATEGORIES 同一份，改類別記得補這裡。 */
 export const CATEGORY_ICON: Record<Category, string> = {
