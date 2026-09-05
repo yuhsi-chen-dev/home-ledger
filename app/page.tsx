@@ -53,7 +53,7 @@ export default async function Home({
       <header className="mb-5 flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">🧾 築巢收據</h1>
-          <p className="text-xs text-stone-500">裝潢到入住，一單一單打進來。</p>
+          <p className="text-xs text-stone-500">從裝潢到入住，一筆一筆記下來</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-500 shadow-sm">
@@ -91,8 +91,8 @@ export default async function Home({
               {s.balance === 0
                 ? "兩人目前已結清 ✓"
                 : s.balance > 0
-                  ? `Miki 要還 Verna ${twd(s.balance)}`
-                  : `Verna 要還 Miki ${twd(-s.balance)}`}
+                  ? `Verna 目前多付了 ${twd(s.balance)}`
+                  : `Miki 目前多付了 ${twd(-s.balance)}`}
             </p>
             <p className="mt-1 text-center text-xs text-stone-500">
               應負擔累計　{PEOPLE.map((p) => `${p.name} ${twd(s.burden[p.id])}`).join("　")}
@@ -103,7 +103,7 @@ export default async function Home({
           {adding === "1" ? (
             <section className="@container overflow-hidden rounded-2xl bg-white shadow-sm">
               <div className="flex items-center justify-between p-4 font-semibold">
-                <span>🧮 打一筆新單</span>
+                <span>🧾 開一張單</span>
                 <Link href={base} className="-mr-2 px-2 text-stone-400" aria-label="關閉">
                   ✕
                 </Link>
@@ -131,7 +131,7 @@ export default async function Home({
               <SubmitButton
                 className="w-full rounded-xl bg-[#5f8a76] px-3 py-3 font-semibold text-white shadow-sm transition hover:bg-[#537a68] active:scale-[0.99]"
               >
-                送出打單
+                出單
               </SubmitButton>
             </form>
             </section>
@@ -141,7 +141,7 @@ export default async function Home({
               className="flex items-center justify-between rounded-2xl bg-white p-4 font-semibold shadow-sm transition active:scale-[0.99]"
             >
               <span>
-                🧮 打一筆新單
+                🧾 開一張單
                 <LinkSpinner />
               </span>
               <span className="text-stone-400">＋</span>
@@ -475,7 +475,7 @@ function Row({ r, editId, base, tab, editHref }: { r: Expense } & RowLinks) {
                       : "rounded-lg border border-stone-200 px-3 py-1 transition active:scale-95"
                   }
                 >
-                  {r.settled ? `已結清（${r.settledDate}）` : `${nameOf(owedBy)} 還了 ${twd(owed)}`}
+                  {r.settled ? `已結清（${r.settledDate}）` : `${nameOf(owedBy)} 補上 ${twd(owed)}`}
                 </SubmitButton>
               </form>
             )}

@@ -71,7 +71,7 @@ export default async function Receipt() {
                     {r.date}　{nameOf(r.payer)}付・{SPLIT_LABEL[r.split]}　
                     {r.paid ? `已付(${r.method})` : "未付"}
                     {r.paid && !r.settled && !selfContained(r) &&
-                      `　${nameOf(other(r.payer))} 未還 ${twd(share(r, other(r.payer)))}`}
+                      `　${nameOf(other(r.payer))} 未補 ${twd(share(r, other(r.payer)))}`}
                     {r.settled && "　已結清"}
                   </p>
                 </div>
@@ -100,7 +100,7 @@ export default async function Receipt() {
           <Line key={p.id} left={`${p.name} 應負擔`} right={twd(s.burden[p.id])} />
         ))}
         <Line
-          left={`待還款（${owing.length} 筆）`}
+          left={`待補差額（${owing.length} 筆）`}
           right={twd(owing.reduce((n, r) => n + share(r, other(r.payer)), 0))}
           className="text-stone-500"
         />
@@ -111,8 +111,8 @@ export default async function Receipt() {
           {s.balance === 0
             ? "✓ 兩人已結清"
             : s.balance > 0
-              ? `Miki 要還 Verna ${twd(s.balance)}`
-              : `Verna 要還 Miki ${twd(-s.balance)}`}
+              ? `Verna 多付了 ${twd(s.balance)}`
+              : `Miki 多付了 ${twd(-s.balance)}`}
         </p>
 
         <Rule double />
