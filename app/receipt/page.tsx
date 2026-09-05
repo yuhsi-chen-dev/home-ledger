@@ -5,6 +5,7 @@ import { expenses, type Expense } from "@/db/schema.ts";
 import { CATEGORY_ICON, SPLIT_LABEL, share, summarize, selfContained, twd } from "@/lib/money.ts";
 import { PEOPLE, nameOf, other } from "@/lib/people.ts";
 import { PrintButton } from "./print-button.tsx";
+import { LinkSpinner } from "../ui.tsx";
 
 export const dynamic = "force-dynamic";
 
@@ -32,9 +33,13 @@ export default async function Receipt() {
       <div className="no-print mb-4 flex items-center justify-between gap-3">
         <Link href="/" className="rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm font-medium">
           ← 回收銀台
+          <LinkSpinner />
         </Link>
         <PrintButton />
       </div>
+
+      {/* 出紙口：紙從這條縫吐出來。 */}
+      <div className="no-print h-2.5 w-full rounded-t-md bg-stone-800" />
 
       <article className="receipt bg-white px-6 py-8 font-mono text-[13px] leading-relaxed text-stone-900 shadow-xl">
         <header className="text-center">

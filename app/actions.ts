@@ -49,6 +49,7 @@ export async function addExpense(formData: FormData) {
     settledDate: null,
   });
   revalidatePath("/");
+  redirect(paid ? "/?tab=paid" : "/");
 }
 
 /**
@@ -69,6 +70,8 @@ export async function updateExpense(formData: FormData) {
 
   await getDb().update(expenses).set(values).where(eq(expenses.id, rowId));
   revalidatePath("/");
+  // 表單開關記在網址上，導回沒有 ?edit 的網址就等於收起來。
+  redirect(formData.get("tab") === "paid" ? "/?tab=paid" : "/");
 }
 
 export async function markPaid(formData: FormData) {
