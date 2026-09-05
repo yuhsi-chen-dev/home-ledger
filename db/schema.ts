@@ -1,5 +1,5 @@
 import { pgTable, text, integer, boolean, date, timestamp, index } from "drizzle-orm/pg-core";
-import { CATEGORIES, METHODS, SPLITS } from "../lib/money.ts";
+import { METHODS, SPLITS } from "../lib/money.ts";
 import { PERSON_IDS } from "../lib/people.ts";
 
 /**
@@ -16,7 +16,10 @@ export const expenses = pgTable(
     title: text("title").notNull(),
     // TWD 整數元。不用 numeric／real，金額不需要小數，也不想碰浮點數。
     amount: integer("amount").notNull(),
-    category: text("category", { enum: CATEGORIES }).notNull(),
+    // 內建類別（見 lib/money.ts 的 CATEGORIES）或打單時臨時自訂的名字，
+    // 所以是自由文字。自訂的那種把選到的 emoji 一起存在下面這欄。
+    category: text("category").notNull(),
+    categoryIcon: text("category_icon"),
     // 收款人。鄰居／管委會的公共分攤也記在這裡——他們是收款人，不是分帳人。
     vendor: text("vendor").notNull(),
     // 同一工程的分期共用同一值，例如「木工-主臥櫃體」。空＝單筆。

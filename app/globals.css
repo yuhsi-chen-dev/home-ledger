@@ -16,6 +16,26 @@
     linear-gradient(#000 0 0) center / 100% calc(100% - var(--zig)) no-repeat;
 }
 
+/* 收據像熱感印表機吐出來：由上往下一段一段顯示。 */
+@keyframes print-out {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.receipt {
+  animation: print-out 1.2s steps(18, end) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .receipt {
+    animation: none;
+  }
+}
+
 /* 品名與金額之間的點點引導線。 */
 .leader {
   flex: 1;
@@ -48,5 +68,6 @@
   .receipt {
     mask: none;
     box-shadow: none;
+    animation: none;
   }
 }

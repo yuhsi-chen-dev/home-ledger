@@ -8,6 +8,13 @@
       "when": 1788535044223,
       "tag": "0000_known_the_hand",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788596170300,
+      "tag": "0001_sad_nighthawk",
+      "breakpoints": true
     }
   ]
 }
