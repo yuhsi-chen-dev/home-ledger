@@ -66,7 +66,7 @@ export default async function Home({
           )}
 
           {/* 收銀機顯示幕 */}
-          <section className="rounded-2xl bg-stone-700 p-5 text-stone-50 shadow-lg shadow-stone-700/25">
+          <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
             <div className="flex items-baseline justify-between">
               <span className="text-xs tracking-[0.2em] text-stone-400">TOTAL TWD</span>
               <span className="text-xs text-stone-400">{today()}</span>
@@ -76,7 +76,7 @@ export default async function Home({
               <Readout label="已付" value={twd(s.paid)} />
               <Readout label="未付" value={twd(s.unpaid)} tone="amber" />
             </div>
-            <p className="mt-4 border-t border-dashed border-stone-500 pt-3 text-center text-sm font-medium text-stone-50">
+            <p className="mt-4 border-t border-dashed border-stone-200 pt-3 text-center text-sm font-medium">
               {s.balance === 0
                 ? "兩人目前已結清 ✓"
                 : s.balance > 0
@@ -141,7 +141,7 @@ export default async function Home({
           <div className="no-print fixed inset-x-0 bottom-0 z-10 border-t border-stone-200 bg-white/90 p-3 backdrop-blur lg:static lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
             <Link
               href="/receipt"
-              className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 rounded-xl bg-stone-700 px-4 py-3 font-semibold text-white transition active:scale-[0.99] lg:max-w-none"
+              className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 rounded-xl bg-stone-800 px-4 py-3 font-semibold text-white transition active:scale-[0.99] lg:max-w-none"
             >
               <span>
                 🧾 結帳・看明細
@@ -213,7 +213,7 @@ function Tile({
 }) {
   return (
     <label
-      className={`flex cursor-pointer select-none items-center justify-center gap-1 rounded-xl border border-stone-200 bg-stone-50 px-2 py-2 text-center text-sm transition has-[:checked]:border-stone-700 has-[:checked]:bg-stone-700 has-[:checked]:text-white ${
+      className={`flex cursor-pointer select-none items-center justify-center gap-1 rounded-xl border border-stone-200 bg-stone-50 px-2 py-2 text-center text-sm transition has-[:checked]:border-stone-800 has-[:checked]:bg-stone-800 has-[:checked]:text-white ${
         stacked ? "flex-col text-xs" : ""
       }`}
     >
@@ -227,7 +227,7 @@ function Tile({
 function ExpenseFields({ r }: { r?: Expense }) {
   return (
     <>
-      <div className="rounded-2xl bg-stone-700 p-4">
+      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
         <label className="block text-right">
           <span className="text-xs tracking-[0.2em] text-stone-400">AMOUNT</span>
           <span className="mt-1 flex items-baseline justify-end gap-2">
@@ -242,7 +242,7 @@ function ExpenseFields({ r }: { r?: Expense }) {
               inputMode="numeric"
               placeholder="0"
                   defaultValue={r?.amount}
-              className="w-full bg-transparent text-right font-mono text-4xl font-bold tabular-nums text-stone-50 outline-none placeholder:text-stone-400"
+              className="w-full bg-transparent text-right font-mono text-4xl font-bold tabular-nums outline-none placeholder:text-stone-300"
             />
           </span>
         </label>
@@ -302,9 +302,9 @@ function ExpenseFields({ r }: { r?: Expense }) {
 
 function Readout({ label, value, tone }: { label: string; value: string; tone?: "amber" }) {
   return (
-    <div className="rounded-xl bg-stone-800/50 px-3 py-2">
-      <div className="text-xs text-stone-300">{label}</div>
-      <div className={`font-mono tabular-nums ${tone === "amber" ? "text-amber-200" : "text-emerald-200"}`}>
+    <div className="rounded-xl bg-stone-100 px-3 py-2">
+      <div className="text-xs text-stone-500">{label}</div>
+      <div className={`font-mono tabular-nums ${tone === "amber" ? "text-amber-700" : "text-emerald-700"}`}>
         {value}
       </div>
     </div>
@@ -328,7 +328,7 @@ function TabLink({
     <Link
       href={href}
       className={`flex flex-1 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition ${
-        active ? "border-stone-700 bg-stone-700 text-white" : "border-stone-200 bg-white text-stone-500"
+        active ? "border-stone-800 bg-stone-800 text-white" : "border-stone-200 bg-white text-stone-500"
       }`}
     >
       <span className={`h-2 w-2 rounded-full ${tone === "amber" ? "bg-amber-400" : "bg-emerald-400"}`} />
@@ -408,7 +408,7 @@ function Row({ r, editId, base, tab, editHref }: { r: Expense } & RowLinks) {
               className="rounded-lg border border-stone-200 bg-stone-50 px-2 py-1"
             />
             <SubmitButton
-              className="rounded-lg bg-stone-700 px-3 py-1 font-medium text-white transition active:scale-95"
+              className="rounded-lg bg-stone-800 px-3 py-1 font-medium text-white transition active:scale-95"
             >
               標記已付
             </SubmitButton>
@@ -489,7 +489,7 @@ function Row({ r, editId, base, tab, editHref }: { r: Expense } & RowLinks) {
                 <LinkSpinner />
               </Link>
               <SubmitButton
-                className="flex-1 rounded-xl bg-stone-700 px-3 py-3 font-semibold text-white transition active:scale-[0.99]"
+                className="flex-1 rounded-xl bg-stone-800 px-3 py-3 font-semibold text-white transition active:scale-[0.99]"
               >
                 儲存修改
               </SubmitButton>
