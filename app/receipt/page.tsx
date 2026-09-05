@@ -43,8 +43,8 @@ export default async function Receipt() {
 
       <article className="receipt bg-white px-6 py-8 font-mono text-[13px] leading-relaxed text-stone-900 shadow-xl">
         <header className="text-center">
-          <h1 className="text-lg font-bold tracking-[0.3em]">新家帳本</h1>
-          <p className="text-[11px] tracking-[0.2em] text-stone-500">HOME LEDGER</p>
+          <h1 className="text-lg font-bold tracking-[0.3em]">築巢收據</h1>
+          <p className="text-[11px] tracking-[0.2em] text-stone-500">NESTING RECEIPTS</p>
           <p className="mt-3 text-[11px] text-stone-500">
             結帳時間 {stamp}
             <br />

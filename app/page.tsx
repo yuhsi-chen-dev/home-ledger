@@ -52,7 +52,7 @@ export default async function Home({
     <main className="mx-auto w-full max-w-3xl p-4 pb-28 sm:p-6 sm:pb-28 lg:max-w-6xl lg:pb-6">
       <header className="mb-5 flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">🏠 新家帳本</h1>
+          <h1 className="text-2xl font-bold tracking-tight">🧾 築巢收據</h1>
           <p className="text-xs text-stone-500">裝潢到入住，一單一單打進來。</p>
         </div>
         <div className="flex items-center gap-2">

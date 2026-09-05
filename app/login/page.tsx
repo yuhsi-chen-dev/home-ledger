@@ -7,8 +7,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center gap-4 p-6">
       <div className="receipt bg-white px-6 py-8 text-center shadow-xl">
-        <h1 className="font-mono text-lg font-bold tracking-[0.3em]">新家帳本</h1>
-        <p className="font-mono text-[11px] tracking-[0.2em] text-stone-500">HOME LEDGER</p>
+        <h1 className="font-mono text-lg font-bold tracking-[0.3em]">築巢收據</h1>
+        <p className="font-mono text-[11px] tracking-[0.2em] text-stone-500">NESTING RECEIPTS</p>
         <hr className="my-4 border-0 border-t border-dashed border-stone-400" />
         <form action={login} className="flex flex-col gap-3">
           <input
