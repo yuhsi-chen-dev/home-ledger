@@ -58,7 +58,7 @@ export default async function Home({
 
       {/* lg 以上：左邊固定收銀機，右邊捲單據；lg 以下維持一條直的。 */}
       <div className="grid items-start gap-5 lg:grid-cols-[24rem_minmax(0,1fr)]">
-        <div className="flex flex-col gap-5 lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:overflow-y-auto">
+        <div className="flex flex-col gap-5 lg:sticky lg:top-6">
           {error && (
             <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
               {error}
@@ -93,7 +93,7 @@ export default async function Home({
             <section className="@container overflow-hidden rounded-2xl bg-white shadow-sm">
               <div className="flex items-center justify-between p-4 font-semibold">
                 <span>🧮 打一筆新單</span>
-                <Link href={base} className="px-2 text-stone-400" aria-label="關閉">
+                <Link href={base} className="-mr-2 px-2 text-stone-400" aria-label="關閉">
                   ✕
                 </Link>
               </div>
