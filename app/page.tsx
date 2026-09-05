@@ -19,6 +19,7 @@ import {
 } from "@/lib/money.ts";
 import { PEOPLE, nameOf, other } from "@/lib/people.ts";
 import { addExpense, updateExpense, markPaid, unmarkPaid, setSettled, deleteExpense } from "./actions.ts";
+import { logout } from "./login/actions.ts";
 import { LinkSpinner, SubmitButton } from "./ui.tsx";
 
 // 每次都讀資料庫；build 時不要預先算這頁（那時沒有 DATABASE_URL）。
@@ -54,9 +55,16 @@ export default async function Home({
           <h1 className="text-2xl font-bold tracking-tight">🏠 新家帳本</h1>
           <p className="text-xs text-stone-500">裝潢到入住，一單一單打進來。</p>
         </div>
-        <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-500 shadow-sm">
-          {rows.length} 筆
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-500 shadow-sm">
+            {rows.length} 筆
+          </span>
+          <form action={logout}>
+            <SubmitButton className="rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-500 shadow-sm transition active:scale-95">
+              ⏻ 關機
+            </SubmitButton>
+          </form>
+        </div>
       </header>
 
       {/* lg 以上：左邊固定收銀機，右邊捲單據；lg 以下維持一條直的。 */}
