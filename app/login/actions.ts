@@ -19,3 +19,9 @@ export async function login(formData: FormData) {
   });
   redirect("/");
 }
+
+/** 關機：把門鎖的 cookie 刪掉，回到輸入密碼那頁。 */
+export async function logout() {
+  (await cookies()).delete(COOKIE);
+  redirect("/login");
+}
