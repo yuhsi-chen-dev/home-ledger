@@ -43,8 +43,8 @@ export default async function Receipt() {
 
       <article className="receipt bg-white px-6 py-8 font-mono text-[13px] leading-relaxed text-stone-900 shadow-xl">
         <header className="text-center">
-          <h1 className="text-lg font-bold tracking-[0.3em]">新家帳本</h1>
-          <p className="text-[11px] tracking-[0.2em] text-stone-500">HOME LEDGER</p>
+          <h1 className="text-lg font-bold tracking-[0.3em]">築巢收據</h1>
+          <p className="text-[11px] tracking-[0.2em] text-stone-500">NESTING RECEIPTS</p>
           <p className="mt-3 text-[11px] text-stone-500">
             結帳時間 {stamp}
             <br />
@@ -71,7 +71,7 @@ export default async function Receipt() {
                     {r.date}　{nameOf(r.payer)}付・{SPLIT_LABEL[r.split]}　
                     {r.paid ? `已付(${r.method})` : "未付"}
                     {r.paid && !r.settled && !selfContained(r) &&
-                      `　${nameOf(other(r.payer))} 未還 ${twd(share(r, other(r.payer)))}`}
+                      `　${nameOf(other(r.payer))} 未補 ${twd(share(r, other(r.payer)))}`}
                     {r.settled && "　已結清"}
                   </p>
                 </div>
@@ -100,7 +100,7 @@ export default async function Receipt() {
           <Line key={p.id} left={`${p.name} 應負擔`} right={twd(s.burden[p.id])} />
         ))}
         <Line
-          left={`待還款（${owing.length} 筆）`}
+          left={`待補差額（${owing.length} 筆）`}
           right={twd(owing.reduce((n, r) => n + share(r, other(r.payer)), 0))}
           className="text-stone-500"
         />
@@ -111,8 +111,8 @@ export default async function Receipt() {
           {s.balance === 0
             ? "✓ 兩人已結清"
             : s.balance > 0
-              ? `Miki 要還 Verna ${twd(s.balance)}`
-              : `Verna 要還 Miki ${twd(-s.balance)}`}
+              ? `Verna 多付了 ${twd(s.balance)}`
+              : `Miki 多付了 ${twd(-s.balance)}`}
         </p>
 
         <Rule double />

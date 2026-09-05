@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- 墨色底＋白色小票，鋸齒撕邊；16px 也還看得出是一張收據。 -->
+  <rect width="32" height="32" rx="7" fill="#292524"/>
+  <polygon fill="#fafaf9" points="9,7 23,7 23,21 21.25,19.5 19.5,21 17.75,19.5 16,21 14.25,19.5 12.5,21 10.75,19.5 9,21"/>
+  <rect x="11.5" y="10.4" width="9" height="1.7" rx="0.85" fill="#292524"/>
+  <rect x="11.5" y="13.9" width="6" height="1.7" rx="0.85" fill="#292524"/>
+</svg>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "新家帳本",
+  title: "築巢收據",
   description: "裝潢到入住的支出記錄與分帳。",
 };
 
