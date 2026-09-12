@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { desc } from "drizzle-orm";
 import { getDb } from "@/db/index.ts";
-import { expenses, type Expense } from "@/db/schema.ts";
+import { expenses, receipts, type Expense } from "@/db/schema.ts";
 import {
   CATEGORIES,
   CATEGORY_ICON,
@@ -18,9 +18,18 @@ import {
   today,
 } from "@/lib/money.ts";
 import { PEOPLE, nameOf, other } from "@/lib/people.ts";
-import { addExpense, updateExpense, markPaid, unmarkPaid, setSettled, deleteExpense } from "./actions.ts";
+import {
+  addExpense,
+  updateExpense,
+  markPaid,
+  unmarkPaid,
+  setSettled,
+  deleteExpense,
+  addReceipt,
+  deleteReceipt,
+} from "./actions.ts";
 import { logout } from "./login/actions.ts";
-import { LinkSpinner, SubmitButton } from "./ui.tsx";
+import { LinkSpinner, PhotoInput, SubmitButton } from "./ui.tsx";
 
 // 每次都讀資料庫；build 時不要預先算這頁（那時沒有 DATABASE_URL）。
 export const dynamic = "force-dynamic";
@@ -44,6 +53,13 @@ export default async function Home({
   const base = showPaid ? "/?tab=paid" : "/";
   const withParam = (k: string, v: string) => `${base}${showPaid ? "&" : "?"}${k}=${v}`;
   const rows = await getDb().select().from(expenses).orderBy(desc(expenses.date));
+  // 只取 id——把 bytes 一起撈出來等於每次開首頁都把所有圖片讀進記憶體。
+  const shots = await getDb()
+    .select({ id: receipts.id, expenseId: receipts.expenseId })
+    .from(receipts)
+    .orderBy(receipts.createdAt);
+  // ponytail: 每列 filter 一次是 O(n×m)，兩個人的裝潢帳撐死幾百筆，不建索引表。
+  const shotsOf = (id: string) => shots.filter((x) => x.expenseId === id);
   const s = summarize(rows);
   const unpaid = rows.filter((r) => !r.paid).sort(byDue);
   const paid = rows.filter((r) => r.paid);
@@ -111,18 +127,34 @@ export default async function Home({
             <form action={addExpense} className="flex flex-col gap-5 border-t border-stone-100 p-4">
               <ExpenseFields />
 
-              <Group label="付款方式">
-                <div className="grid grid-cols-4 gap-2">
-                  <Tile name="method" value="" defaultChecked>
-                    還沒付
-                  </Tile>
-                  {METHODS.map((m) => (
-                    <Tile key={m} name="method" value={m}>
-                      {m}
+              {/* contents：只是拿來當 :has() 的錨點，不影響表單本身的排版。 */}
+              <div className="group/pay contents">
+                <Group label="付款方式">
+                  <div className="grid grid-cols-4 gap-2">
+                    <Tile name="method" value="" defaultChecked data-unpaid="">
+                      還沒付
                     </Tile>
-                  ))}
+                    {METHODS.map((m) => (
+                      <Tile key={m} name="method" value={m}>
+                        {m}
+                      </Tile>
+                    ))}
+                  </div>
+                </Group>
+
+                {/* 選「還沒付」就收起來——還沒付的帳不會有轉帳截圖。純 CSS，沒有 client state。 */}
+                <div className="group-has-[[data-unpaid]:checked]/pay:hidden">
+                  <Group label="付款憑證（選填）">
+                    <input
+                      type="file"
+                      name="file"
+                      accept="image/*"
+                      className="w-full text-sm text-stone-500 file:mr-3 file:rounded-lg file:border-0 file:bg-stone-100 file:px-3 file:py-2 file:text-stone-700"
+                    />
+                    <p className="mt-1 text-xs text-stone-400">轉帳成功畫面、刷卡完成截圖之類。之後也可以在卡片上補。</p>
+                  </Group>
                 </div>
-              </Group>
+              </div>
 
               <Field label="備註（選填）">
                 <input name="note" className={input} />
@@ -177,6 +209,7 @@ export default async function Home({
             base={base}
             tab={showPaid ? "paid" : ""}
             editHref={(id) => `${withParam("edit", id)}#e-${id}`}
+            shotsOf={shotsOf}
           />
         </div>
       </div>
@@ -215,20 +248,21 @@ function Tile({
   defaultChecked,
   stacked,
   children,
+  ...data
 }: {
   name: string;
   value: string;
   defaultChecked?: boolean;
   stacked?: boolean;
   children: React.ReactNode;
-}) {
+} & Record<`data-${string}`, string>) {
   return (
     <label
       className={`flex cursor-pointer select-none items-center justify-center gap-1 rounded-xl border border-stone-200 bg-stone-50 px-2 py-2 text-center text-sm transition has-[:checked]:border-stone-800 has-[:checked]:bg-stone-800 has-[:checked]:text-white ${
         stacked ? "flex-col text-xs" : ""
       }`}
     >
-      <input type="radio" name={name} value={value} defaultChecked={defaultChecked} className="sr-only" />
+      <input type="radio" name={name} value={value} defaultChecked={defaultChecked} className="sr-only" {...data} />
       {children}
     </label>
   );
@@ -382,7 +416,15 @@ function TabLink({
   );
 }
 
-type RowLinks = { editId?: string; base: string; tab: string; editHref: (id: string) => string };
+type Shot = { id: string; expenseId: string };
+
+type RowLinks = {
+  editId?: string;
+  base: string;
+  tab: string;
+  editHref: (id: string) => string;
+  shotsOf: (id: string) => Shot[];
+};
 
 function List({ rows, empty, ...links }: { rows: Expense[]; empty: string } & RowLinks) {
   return (
@@ -398,10 +440,11 @@ function List({ rows, empty, ...links }: { rows: Expense[]; empty: string } & Ro
   );
 }
 
-function Row({ r, editId, base, tab, editHref }: { r: Expense } & RowLinks) {
+function Row({ r, editId, base, tab, editHref, shotsOf }: { r: Expense } & RowLinks) {
   const owedBy = other(r.payer);
   const owed = share(r, owedBy);
   const editing = editId === r.id;
+  const shots = shotsOf(r.id);
 
   return (
     <article id={`e-${r.id}`} className="rounded-2xl bg-white p-4 shadow-sm">
@@ -484,6 +527,11 @@ function Row({ r, editId, base, tab, editHref }: { r: Expense } & RowLinks) {
 
       </div>
 
+      {/* 未付又還沒有圖時不顯示——那時候本來就不會有轉帳截圖，別佔版面。 */}
+      {(r.paid || shots.length > 0) && (
+        <ReceiptStrip expenseId={r.id} shots={shots} tab={tab} editing={editing} />
+      )}
+
       {r.note && <p className="mt-2 text-sm text-stone-400">{r.note}</p>}
 
       <div className="mt-2 text-right">
@@ -548,6 +596,63 @@ function Row({ r, editId, base, tab, editHref }: { r: Expense } & RowLinks) {
         </div>
       )}
     </article>
+  );
+}
+
+/**
+ * 付款憑證。縮圖點下去是**新分頁開原圖**，不是燈箱：截圖上的帳號末碼、
+ * 金額就是要放大看的東西，新分頁有瀏覽器原生的雙指縮放和「儲存圖片」，
+ * 自己刻一個 modal 還得自己做 pan/zoom。
+ */
+function ReceiptStrip({
+  expenseId,
+  shots,
+  tab,
+  editing,
+}: {
+  expenseId: string;
+  shots: Shot[];
+  tab: string;
+  editing: boolean;
+}) {
+  return (
+    <div className="no-print mt-3 flex flex-wrap items-center gap-2">
+      {shots.map((s) => (
+        <div key={s.id} className="relative">
+          <a href={`/img/${s.id}`} target="_blank" rel="noopener" title="開原圖">
+            {/* eslint-disable-next-line @next/next/no-img-element -- 私有圖片、只有縮圖一種尺寸，next/image 的優化器幫不上忙 */}
+            <img
+              src={`/img/${s.id}`}
+              alt="付款憑證"
+              className="h-14 w-14 rounded-lg border border-stone-200 bg-stone-50 object-cover object-top"
+            />
+          </a>
+          {/* 刪除只在編輯模式出現，跟「刪除這筆」一致，也避免手機誤觸。 */}
+          {editing && (
+            <form action={deleteReceipt} className="absolute -right-1.5 -top-1.5">
+              <input type="hidden" name="id" value={s.id} />
+              <button
+                type="submit"
+                aria-label="刪除這張憑證"
+                className="grid h-5 w-5 place-items-center rounded-full bg-white text-[10px] text-stone-500 shadow"
+              >
+                ✕
+              </button>
+            </form>
+          )}
+        </div>
+      ))}
+      <form action={addReceipt}>
+        <input type="hidden" name="expenseId" value={expenseId} />
+        <input type="hidden" name="tab" value={tab} />
+        <PhotoInput className="grid h-14 w-14 place-items-center rounded-lg border border-dashed border-stone-300 text-stone-400 transition active:scale-95">
+          <span className="text-lg" aria-hidden>
+            📎
+          </span>
+          <span className="sr-only">加一張付款憑證</span>
+        </PhotoInput>
+      </form>
+    </div>
   );
 }
 

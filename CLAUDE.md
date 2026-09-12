@@ -99,9 +99,16 @@ npm run db:generate  改完 db/schema.ts 後產生 migration
 npm run db:migrate   套用 migration（沒有掛在 build 上，要自己跑）
 ```
 
+## 付款憑證
+
+轉帳／刷卡成功的截圖存在 `receipts` 表的 `bytea` 欄位（Neon 裡，不是外部物件
+儲存——理由見 `docs/02-decisions.md` 0004）。原圖只能從 `/img/[id]` 拿，
+那條路徑在 `proxy.ts` 的門鎖 matcher 內。上傳走 server action，
+**不收 SVG**（同源 SVG 等於讓上傳檔案在自家網域跑 script）。
+
 ## 待決事項
 
-- 是否要記錄發票／收據照片（會牽涉檔案儲存，先不做）。
+- 目前沒有。
 
 ## 回覆慣例
 
