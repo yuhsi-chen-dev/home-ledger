@@ -91,13 +91,14 @@ Vercel 接 `main`，push 就部署。`DATABASE_URL` 與 `APP_PASSWORD` 要在 Ve
 
 ```
 app/page.tsx       總覽 + 待付／已付清單 + 記一筆表單
-app/actions.ts     新增、標記已付、標記已還、刪除（server actions）
+app/actions.ts     新增、標記已付、標記已還、刪除、上傳憑證（server actions）
 app/login/         密碼登入頁與 action
 proxy.ts           門鎖：cookie hash 對不上就踢去 /login
 lib/people.ts      固定兩人的常數
 lib/money.ts       分帳算式（唯一來源）+ 類別／付款方式／分法的列舉
 lib/money.test.ts  分帳算式的測試
-db/schema.ts       expenses 一張表
+app/img/[id]/      付款憑證原圖（門鎖後才拿得到）
+db/schema.ts       expenses 與 receipts 兩張表
 docs/              痛點、資料模型、決策紀錄
 ```
 

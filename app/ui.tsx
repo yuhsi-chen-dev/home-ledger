@@ -24,3 +24,24 @@ export function SubmitButton({ className, children }: { className: string; child
     </button>
   );
 }
+
+/**
+ * 選好照片就直接送出——多一顆「上傳」按鈕只是多一次點擊。
+ * accept="image/*" 在手機上開的就是原生的相簿／相機，不需要任何套件。
+ */
+export function PhotoInput({ className, children }: { className: string; children: React.ReactNode }) {
+  const { pending } = useFormStatus();
+  return (
+    <label className={`${className} ${pending ? "cursor-wait opacity-60" : "cursor-pointer"}`}>
+      <input
+        type="file"
+        name="file"
+        accept="image/*"
+        disabled={pending}
+        className="sr-only"
+        onChange={(e) => e.currentTarget.form?.requestSubmit()}
+      />
+      {pending ? <span className={ring} aria-hidden /> : children}
+    </label>
+  );
+}

@@ -15,6 +15,13 @@
       "when": 1788596170300,
       "tag": "0001_sad_nighthawk",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789214621627,
+      "tag": "0002_brief_caretaker",
+      "breakpoints": true
     }
   ]
 }

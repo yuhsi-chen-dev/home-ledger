@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { getDb } from "@/db/index.ts";
-import { expenses } from "@/db/schema.ts";
+import { expenses, receipts } from "@/db/schema.ts";
 import { CUSTOM_CATEGORY, CUSTOM_ICONS, METHODS, SPLITS, today } from "@/lib/money.ts";
 import { PERSON_IDS } from "@/lib/people.ts";
 
@@ -132,5 +132,41 @@ export async function setSettled(formData: FormData) {
 
 export async function deleteExpense(formData: FormData) {
   await getDb().delete(expenses).where(eq(expenses.id, id.parse(formData.get("id"))));
+  revalidatePath("/");
+}
+
+/**
+ * 可以顯示的圖片格式白名單。**不收 SVG**——同源提供的 SVG 會被當文件執行，
+ * 等於讓上傳的檔案在自家網域跑 script。憑證本來也不會是 SVG。
+ */
+const IMAGE_MIMES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/heic"];
+const MAX_UPLOAD = 8 * 1024 * 1024; // 跟 next.config.ts 的 bodySizeLimit 對齊
+
+/** 錯誤訊息導回原本那個分頁，不要把人從「已付」踢回「待付」。 */
+function backWithError(msg: string, tab: unknown): never {
+  const prefix = tab === "paid" ? "/?tab=paid&" : "/?";
+  redirect(`${prefix}error=${encodeURIComponent(msg)}`);
+}
+
+export async function addReceipt(formData: FormData) {
+  const tab = formData.get("tab");
+  const expenseId = id.parse(formData.get("expenseId"));
+  const file = formData.get("file");
+
+  if (!(file instanceof File) || file.size === 0) backWithError("沒有選到圖片", tab);
+  if (file.size > MAX_UPLOAD) backWithError("圖片太大了（上限 8MB）", tab);
+  if (!IMAGE_MIMES.includes(file.type)) backWithError(`不支援這種檔案（${file.type || "未知格式"}）`, tab);
+
+  await getDb().insert(receipts).values({
+    id: crypto.randomUUID(),
+    expenseId,
+    mime: file.type,
+    bytes: new Uint8Array(await file.arrayBuffer()),
+  });
+  revalidatePath("/");
+}
+
+export async function deleteReceipt(formData: FormData) {
+  await getDb().delete(receipts).where(eq(receipts.id, id.parse(formData.get("id"))));
   revalidatePath("/");
 }
