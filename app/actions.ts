@@ -48,6 +48,36 @@ function resolveCategory(category: string, raw: Record<string, unknown>) {
   return { category: customCategory, categoryIcon: customIcon || CUSTOM_ICONS[0] };
 }
 
+/**
+ * 可以顯示的圖片格式白名單。**不收 SVG**——同源提供的 SVG 會被當文件執行，
+ * 等於讓上傳的檔案在自家網域跑 script。憑證本來也不會是 SVG。
+ */
+const IMAGE_MIMES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/heic"];
+const MAX_UPLOAD = 8 * 1024 * 1024; // 跟 next.config.ts 的 bodySizeLimit 對齊
+
+/** 錯誤訊息導回原本那個分頁，不要把人從「已付」踢回「待付」。 */
+function backWithError(msg: string, tab: unknown): never {
+  const prefix = tab === "paid" ? "/?tab=paid&" : "/?";
+  redirect(`${prefix}error=${encodeURIComponent(msg)}`);
+}
+
+/** 沒選檔案回 null（打單時憑證是選填）；選了但不合格就直接中斷。 */
+function pickImage(file: FormDataEntryValue | null, tab: unknown): File | null {
+  if (!(file instanceof File) || file.size === 0) return null;
+  if (file.size > MAX_UPLOAD) backWithError("圖片太大了（上限 8MB）", tab);
+  if (!IMAGE_MIMES.includes(file.type)) backWithError(`不支援這種檔案（${file.type || "未知格式"}）`, tab);
+  return file;
+}
+
+async function insertReceipt(expenseId: string, file: File) {
+  await getDb().insert(receipts).values({
+    id: crypto.randomUUID(),
+    expenseId,
+    mime: file.type,
+    bytes: new Uint8Array(await file.arrayBuffer()),
+  });
+}
+
 export async function addExpense(formData: FormData) {
   const raw = Object.fromEntries(formData);
   const parsed = Input.safeParse(raw);
@@ -56,18 +86,22 @@ export async function addExpense(formData: FormData) {
 
   // 選了付款方式就代表已經付掉了；付款日先當成費用日期，不同天的話事後改。
   const paid = v.method !== null;
+  // 先驗圖再建支出——不然圖不合格時已經留下一筆沒憑證的支出了。
+  const image = pickImage(formData.get("file"), "");
+  const expenseId = crypto.randomUUID();
 
   // settled 一律 false，包含「自己全付自己的錢」——那種筆的欠款額本來就是 0
   // （lib/money.ts 的 share() 算出來是 0），不需要再存一個 true 去表示同一件事。
   await getDb().insert(expenses).values({
     ...v,
     ...resolveCategory(v.category, raw),
-    id: crypto.randomUUID(),
+    id: expenseId,
     paid,
     paidDate: paid ? v.date : null,
     settled: false,
     settledDate: null,
   });
+  if (image) await insertReceipt(expenseId, image);
   revalidatePath("/");
   redirect(paid ? "/?tab=paid" : "/");
 }
@@ -135,34 +169,13 @@ export async function deleteExpense(formData: FormData) {
   revalidatePath("/");
 }
 
-/**
- * 可以顯示的圖片格式白名單。**不收 SVG**——同源提供的 SVG 會被當文件執行，
- * 等於讓上傳的檔案在自家網域跑 script。憑證本來也不會是 SVG。
- */
-const IMAGE_MIMES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/heic"];
-const MAX_UPLOAD = 8 * 1024 * 1024; // 跟 next.config.ts 的 bodySizeLimit 對齊
-
-/** 錯誤訊息導回原本那個分頁，不要把人從「已付」踢回「待付」。 */
-function backWithError(msg: string, tab: unknown): never {
-  const prefix = tab === "paid" ? "/?tab=paid&" : "/?";
-  redirect(`${prefix}error=${encodeURIComponent(msg)}`);
-}
-
 export async function addReceipt(formData: FormData) {
   const tab = formData.get("tab");
   const expenseId = id.parse(formData.get("expenseId"));
-  const file = formData.get("file");
+  const image = pickImage(formData.get("file"), tab);
+  if (!image) backWithError("沒有選到圖片", tab);
 
-  if (!(file instanceof File) || file.size === 0) backWithError("沒有選到圖片", tab);
-  if (file.size > MAX_UPLOAD) backWithError("圖片太大了（上限 8MB）", tab);
-  if (!IMAGE_MIMES.includes(file.type)) backWithError(`不支援這種檔案（${file.type || "未知格式"}）`, tab);
-
-  await getDb().insert(receipts).values({
-    id: crypto.randomUUID(),
-    expenseId,
-    mime: file.type,
-    bytes: new Uint8Array(await file.arrayBuffer()),
-  });
+  await insertReceipt(expenseId, image);
   revalidatePath("/");
 }
 

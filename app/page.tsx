@@ -127,18 +127,34 @@ export default async function Home({
             <form action={addExpense} className="flex flex-col gap-5 border-t border-stone-100 p-4">
               <ExpenseFields />
 
-              <Group label="付款方式">
-                <div className="grid grid-cols-4 gap-2">
-                  <Tile name="method" value="" defaultChecked>
-                    還沒付
-                  </Tile>
-                  {METHODS.map((m) => (
-                    <Tile key={m} name="method" value={m}>
-                      {m}
+              {/* contents：只是拿來當 :has() 的錨點，不影響表單本身的排版。 */}
+              <div className="group/pay contents">
+                <Group label="付款方式">
+                  <div className="grid grid-cols-4 gap-2">
+                    <Tile name="method" value="" defaultChecked data-unpaid="">
+                      還沒付
                     </Tile>
-                  ))}
+                    {METHODS.map((m) => (
+                      <Tile key={m} name="method" value={m}>
+                        {m}
+                      </Tile>
+                    ))}
+                  </div>
+                </Group>
+
+                {/* 選「還沒付」就收起來——還沒付的帳不會有轉帳截圖。純 CSS，沒有 client state。 */}
+                <div className="group-has-[[data-unpaid]:checked]/pay:hidden">
+                  <Group label="付款憑證（選填）">
+                    <input
+                      type="file"
+                      name="file"
+                      accept="image/*"
+                      className="w-full text-sm text-stone-500 file:mr-3 file:rounded-lg file:border-0 file:bg-stone-100 file:px-3 file:py-2 file:text-stone-700"
+                    />
+                    <p className="mt-1 text-xs text-stone-400">轉帳成功畫面、刷卡完成截圖之類。之後也可以在卡片上補。</p>
+                  </Group>
                 </div>
-              </Group>
+              </div>
 
               <Field label="備註（選填）">
                 <input name="note" className={input} />
@@ -232,20 +248,21 @@ function Tile({
   defaultChecked,
   stacked,
   children,
+  ...data
 }: {
   name: string;
   value: string;
   defaultChecked?: boolean;
   stacked?: boolean;
   children: React.ReactNode;
-}) {
+} & Record<`data-${string}`, string>) {
   return (
     <label
       className={`flex cursor-pointer select-none items-center justify-center gap-1 rounded-xl border border-stone-200 bg-stone-50 px-2 py-2 text-center text-sm transition has-[:checked]:border-stone-800 has-[:checked]:bg-stone-800 has-[:checked]:text-white ${
         stacked ? "flex-col text-xs" : ""
       }`}
     >
-      <input type="radio" name={name} value={value} defaultChecked={defaultChecked} className="sr-only" />
+      <input type="radio" name={name} value={value} defaultChecked={defaultChecked} className="sr-only" {...data} />
       {children}
     </label>
   );
