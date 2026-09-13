@@ -1,10 +1,16 @@
 "use server";
 
+/**
+ * 每一支都自己呼叫 requireUser()——Server Action 不是獨立路由，
+ * proxy.ts 的 matcher 蓋不到它，只靠門鎖等於沒鎖（CLAUDE.md「登入與人員」）。
+ */
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { getDb } from "@/db/index.ts";
+import { requireUser } from "@/lib/dal.ts";
 import { expenses, receipts } from "@/db/schema.ts";
 import { CUSTOM_CATEGORY, CUSTOM_ICONS, METHODS, SPLITS, today } from "@/lib/money.ts";
 import { PERSON_IDS } from "@/lib/people.ts";
@@ -79,6 +85,7 @@ async function insertReceipt(expenseId: string, file: File) {
 }
 
 export async function addExpense(formData: FormData) {
+  await requireUser();
   const raw = Object.fromEntries(formData);
   const parsed = Input.safeParse(raw);
   if (!parsed.success) redirect(`/?error=${encodeURIComponent(parsed.error.issues[0]!.message)}`);
@@ -118,6 +125,7 @@ const Update = Input.extend({
 });
 
 export async function updateExpense(formData: FormData) {
+  await requireUser();
   const raw = Object.fromEntries(formData);
   const parsed = Update.safeParse(raw);
   if (!parsed.success) redirect(`/?error=${encodeURIComponent(parsed.error.issues[0]!.message)}`);
@@ -133,6 +141,7 @@ export async function updateExpense(formData: FormData) {
 }
 
 export async function markPaid(formData: FormData) {
+  await requireUser();
   // 付款日期由使用者挑——昨天付的、今天才標記是常態，不要硬塞今天。
   const values = z
     .object({ id, method: z.enum(METHODS), paidDate: ymd.default(today()) })
@@ -146,6 +155,7 @@ export async function markPaid(formData: FormData) {
 }
 
 export async function unmarkPaid(formData: FormData) {
+  await requireUser();
   // settled 也要一起清掉。沒付出去的錢談不上「兩人已結清」，留著會變成
   // 「未付但已結清」的矛盾狀態，之後重新標記已付時會假裝對方還過錢。
   await getDb()
@@ -156,6 +166,7 @@ export async function unmarkPaid(formData: FormData) {
 }
 
 export async function setSettled(formData: FormData) {
+  await requireUser();
   const settled = formData.get("settled") === "1";
   await getDb()
     .update(expenses)
@@ -165,11 +176,13 @@ export async function setSettled(formData: FormData) {
 }
 
 export async function deleteExpense(formData: FormData) {
+  await requireUser();
   await getDb().delete(expenses).where(eq(expenses.id, id.parse(formData.get("id"))));
   revalidatePath("/");
 }
 
 export async function addReceipt(formData: FormData) {
+  await requireUser();
   const tab = formData.get("tab");
   const expenseId = id.parse(formData.get("expenseId"));
   const image = pickImage(formData.get("file"), tab);
@@ -180,6 +193,7 @@ export async function addReceipt(formData: FormData) {
 }
 
 export async function deleteReceipt(formData: FormData) {
+  await requireUser();
   await getDb().delete(receipts).where(eq(receipts.id, id.parse(formData.get("id"))));
   revalidatePath("/");
 }

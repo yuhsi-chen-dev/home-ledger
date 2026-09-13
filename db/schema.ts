@@ -3,6 +3,24 @@ import { METHODS, SPLITS } from "../lib/money.ts";
 import { PERSON_IDS } from "../lib/people.ts";
 
 /**
+ * Google 登入後才存在的一列，一個真人一列。
+ *
+ * 這張表跟「分帳人頭」是兩回事：人頭是專案底下的 member（階段 2），
+ * 一個人頭可以完全沒有對應的 user（只打名字、對方不用帳號）。
+ */
+export const users = pgTable("users", {
+  id: text("id").primaryKey(),
+  // 認 sub 不認 email：email 會變（改名、換網域），sub 不會。
+  googleSub: text("google_sub").notNull().unique(),
+  email: text("email").notNull(),
+  name: text("name").notNull(),
+  picture: text("picture"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type User = typeof users.$inferSelect;
+
+/**
  * 一筆支出＝一次要付給某人的錢。分期款是「多列」，不是一列。
  * 刻意保持扁平：在 Neon 的 SQL editor 直接 select * 就要看得懂
  * （見 CLAUDE.md 鐵則 5）。沒有 userId——兩人共用一本帳，登入只是門鎖。

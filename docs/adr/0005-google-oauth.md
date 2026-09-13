@@ -60,6 +60,13 @@ JWT 的複雜度幾乎全在跟第三方互通（多演算法協商、JWKS 抓�
   只有 test users 名單內的 email 能登入，被邀請的人會直接被 Google 擋掉。
   我們只要 non-sensitive scope，publish 不需要 Google 審核。
 
+**階段 1／2 的過渡措施 `ALLOWED_EMAILS`**：換成 Google 登入之後、專案化之前，
+全站仍然只有一本帳——任何 Google 帳號登入就看得到裡面的真實金額，
+這比原本的共用密碼還鬆。所以 callback 多一道 email 白名單，沒設定就誰都不放行
+（fail closed，這是記帳本，寧可登不進去）。階段 2 由 `members` 接手之後，
+這個變數與那段程式一起刪掉：「誰能登入」本來就不該是門檻，
+「登入後看得到哪幾本帳」才是。
+
 **已知天花板**：stateless session 沒有伺服器端撤銷。踢人＝刪 `members` 那列，
 對方的 session 仍然有效，但查不到任何專案，畫面是空的。要讓 session 立刻失效
 只能換 `SESSION_SECRET`——那會把所有人一起登出。兩個人的 app 可以接受這個核彈選項。

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { asc } from "drizzle-orm";
 import { getDb } from "@/db/index.ts";
+import { requireUser } from "@/lib/dal.ts";
 import { expenses, type Expense } from "@/db/schema.ts";
 import { iconOf, SPLIT_LABEL, share, summarize, selfContained, twd } from "@/lib/money.ts";
 import { PEOPLE, nameOf, other } from "@/lib/people.ts";
@@ -22,6 +23,7 @@ function group(rows: Expense[]) {
 }
 
 export default async function Receipt() {
+  await requireUser();
   const rows = await getDb().select().from(expenses).orderBy(asc(expenses.date));
   const s = summarize(rows);
   // 已付但還沒互相結清的金額——這張收據真正「還要付」的部分。

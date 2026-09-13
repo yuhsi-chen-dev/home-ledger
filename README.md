@@ -51,7 +51,7 @@
 - [x] 部署到 Vercel + Neon
 - [x] 付款憑證（轉帳截圖存 Neon）
 - [x] 專案化改建的規劃與文件（階段 0）
-- [ ] 階段 1：Google 登入、session、DAL
+- [x] 階段 1：Google 登入、session、DAL
 - [ ] 階段 2：專案化、分帳 N 人化、資料遷移
 - [ ] 階段 3：邀請連結、專案設定頁
 - [ ] 階段 4：個人記帳 UX（性質、類別、多元支付、總覽）
@@ -79,8 +79,13 @@ npm run db:migrate   套用 migration
 | `GOOGLE_CLIENT_SECRET` | 換 token 時認證 client | callback 換不到 token |
 | `SESSION_SECRET` | HMAC 簽 session，`openssl rand -base64 32` | 所有頁面 500 |
 | `APP_URL` | OAuth `redirect_uri` 與邀請連結的絕對網址 | redirect_uri 對不上，Google 擋掉 |
+| `ALLOWED_EMAILS` | **過渡措施**，逗號分隔。階段 2 之後刪掉 | 一個人都登不進去（fail closed） |
 
 `SESSION_SECRET` **地端與線上各一把，不要共用**。換掉它等於把所有人登出。
+
+> `ALLOWED_EMAILS` 是階段 1／2 的過渡措施。這時候還沒有 projects 與 members，
+> 全站只有一本帳，任何 Google 帳號登入就看得到裡面的真實金額，所以先用白名單擋。
+> 階段 2 之後由 members 決定誰看得到哪本帳，這個變數連同程式一起刪掉。
 
 ### Google Cloud Console 設定
 
