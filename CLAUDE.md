@@ -83,6 +83,8 @@ Next.js（App Router）+ Postgres + Drizzle + Vercel。部署與 Neon 的操作�
   OAuth 過程那顆短期 cookie 也是 `lax`——回跳是 top-level GET，
   `strict` 會讓它送不出去。
 - **使用者認 `google_sub`，不認 email**（email 會變）。
+- ⚠️ `ALLOWED_EMAILS` 是**階段 1／2 的過渡白名單**（還沒有 members 之前，
+  任何 Google 帳號登入就看得到唯一那本帳）。**階段 2 完成時要連同程式一起刪掉。**
 
 **授權分兩層，不要合併**（Next 16 把 `middleware.ts` 改名成 `proxy.ts`，
 不要退回舊名）：

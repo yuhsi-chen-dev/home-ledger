@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { desc } from "drizzle-orm";
 import { getDb } from "@/db/index.ts";
+import { requireUser } from "@/lib/dal.ts";
 import { expenses, receipts, type Expense } from "@/db/schema.ts";
 import {
   CATEGORIES,
@@ -44,6 +45,7 @@ export default async function Home({
   searchParams: Promise<{ error?: string; tab?: string; new?: string; edit?: string }>;
 }) {
   const { error, tab, new: adding, edit } = await searchParams;
+  const me = await requireUser();
   // 待付是預設分頁——會需要動作的都在那裡。已付只是查帳用。
   const showPaid = tab === "paid";
   /**
@@ -74,6 +76,10 @@ export default async function Home({
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-500 shadow-sm">
             {rows.length} 筆
+          </span>
+          {/* 兩個人共用一台裝置時要看得出現在是誰在記帳。 */}
+          <span className="hidden rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-500 shadow-sm sm:inline">
+            {me.name}
           </span>
           <form action={logout}>
             <SubmitButton className="rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-500 shadow-sm transition active:scale-95">

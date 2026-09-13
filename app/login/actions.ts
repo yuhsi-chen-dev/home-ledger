@@ -2,26 +2,16 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { COOKIE, sha256, requirePassword } from "@/lib/auth.ts";
+import { SESSION_COOKIE } from "@/lib/auth.ts";
 
-export async function login(formData: FormData) {
-  const input = String(formData.get("password") ?? "");
-  const expected = await sha256(requirePassword());
-  // 比對 hash 而不是明文：兩邊等長，時序差異問不出東西。
-  if ((await sha256(input)) !== expected) redirect("/login?error=1");
-
-  (await cookies()).set(COOKIE, expected, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-  });
-  redirect("/");
-}
-
-/** 關機：把門鎖的 cookie 刪掉，回到輸入密碼那頁。 */
+/**
+ * 關機：把 session cookie 刪掉。
+ *
+ * stateless session 沒有伺服器端撤銷——這裡只是叫瀏覽器把 cookie 丟掉，
+ * 那個字串本身在 exp 之前仍然是有效簽章。要讓所有人立刻失效只能換
+ * SESSION_SECRET（見 docs/adr/0005-google-oauth.md 的已知天花板）。
+ */
 export async function logout() {
-  (await cookies()).delete(COOKIE);
+  (await cookies()).delete(SESSION_COOKIE);
   redirect("/login");
 }

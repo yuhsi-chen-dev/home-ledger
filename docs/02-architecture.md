@@ -12,8 +12,8 @@
 
 | 階段 | 內容 | 狀態 |
 |---|---|---|
-| 0 | 文件（這份 + 決策 + 資料模型 + CLAUDE.md + README） | 進行中 |
-| 1 | 登入換成 Google OAuth、session、DAL | 未開始 |
+| 0 | 文件（這份 + 決策 + 資料模型 + CLAUDE.md + README） | 完成 |
+| 1 | 登入換成 Google OAuth、session、DAL | 完成 |
 | 2 | 專案化、分帳 N 人化、資料遷移 | 未開始 |
 | 3 | 邀請連結、專案設定頁 | 未開始 |
 | 4 | 個人記帳 UX（性質、類別、多元支付、總覽） | 未開始 |
@@ -433,7 +433,11 @@ view 是純 join，沒有任何維護成本，也不會跟本表不同步。
 | `GOOGLE_CLIENT_SECRET` | 換 token 時認證 client | callback 換不到 token |
 | `SESSION_SECRET` | HMAC 簽 session，`openssl rand -base64 32` | 所有頁面 500 |
 | `APP_URL` | OAuth `redirect_uri` 與邀請連結的絕對網址 | redirect_uri 對不上，Google 擋掉 |
+| `ALLOWED_EMAILS` | **階段 1／2 過渡**：能登入的 email（逗號分隔） | 一個人都登不進去 |
 
 `SESSION_SECRET` 地端與線上**各一把，不要共用**。換掉它等於把所有人登出。
 
 沒有任何寄信相關的變數——邀請是連結，不是信。
+
+`ALLOWED_EMAILS` 會在階段 2 刪掉：那時候「誰能登入」本來就不該是門檻，
+「登入後看得到哪幾本帳」才是，而那件事由 `members` 決定。
