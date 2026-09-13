@@ -1,4 +1,4 @@
-// 分帳人固定兩位。要改名改這裡；沒有人員管理頁面（見 docs/02-decisions.md 0002）。
+// 分帳人固定兩位。要改名改這裡；沒有人員管理頁面（見 docs/adr/0002-shared-password.md）。
 export const PEOPLE = [
   { id: "verna", name: "Verna" },
   { id: "miki", name: "Miki" },
