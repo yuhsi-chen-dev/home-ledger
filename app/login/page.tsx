@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { LinkSpinner } from "../ui.tsx";
 
 /** 登入失敗的原因對使用者要講人話，但不要講到能拿來試探系統。 */
 const ERRORS: Record<string, string> = {
@@ -27,15 +25,18 @@ export default async function LoginPage({
         <p className="font-mono text-[11px] tracking-[0.2em] text-stone-500">NESTING RECEIPTS</p>
         <hr className="my-4 border-0 border-t border-dashed border-stone-400" />
 
-        <Link
+        {/*
+          用 <a> 不用 <Link>：/auth/google 是 route handler 不是頁面，
+          Link 會先試著抓 RSC payload、失敗、再退回一般導向——
+          每次登入都多一個失敗的 fetch。這裡本來就是要整頁離開。
+        */}
+        <a
           href={href}
-          prefetch={false}
           className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-3 font-medium shadow-sm transition hover:bg-stone-50 active:scale-[0.99]"
         >
           <GoogleMark />
           用 Google 登入
-          <LinkSpinner />
-        </Link>
+        </a>
 
         {error && (
           <p className="mt-3 text-sm text-red-600">{ERRORS[error] ?? "登入沒成功，再試一次。"}</p>
