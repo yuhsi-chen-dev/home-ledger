@@ -4,7 +4,7 @@
 「築巢收據」（新家裝潢／入住的支出與分帳）是其中一個專案，不是整個 app。
 
 > **正在改建中。** 這份文件描述的是**目標**架構，不是每一行都已經實作完成。
-> 目前進度看 `docs/03-architecture.md` 的「實作進度」表。
+> 目前進度看 `docs/02-architecture.md` 的「實作進度」表。
 > 架構全景（分層、資料表關聯、登入與邀請流程）也在那一份。
 
 ## 事實（不要重新發明）
@@ -46,10 +46,19 @@
    程式查 `expenses`，人在 Neon 的 SQL editor 查 `expenses_readable`
    （決策 0006）。改 `expenses` 的欄位要記得一起改 view。
 
+## 決策紀錄
+
+`docs/adr/`，**一個檔案一項決策**，索引在 `docs/adr/README.md`。
+不要再往單一大檔案疊。
+
+- 新決策＝取下一個編號開新檔案，寫法與必備段落見索引頁的「怎麼加一條」。
+- **推翻舊決策時不要改寫或刪掉舊的那一份**，只改它表頭的「狀態」欄指向新的。
+  原文留著，以後才看得到當初為什麼那樣選（例如 0002 的共用密碼）。
+
 ## 技術棧與部署
 
 Next.js（App Router）+ Postgres + Drizzle + Vercel。部署與 Neon 的操作手冊
-參考 `../OW64/docs/deploy.md`；決策與「哪些不照抄」見 `docs/02-decisions.md`。
+參考 `../OW64/docs/deploy.md`；決策與「哪些不照抄」見 `docs/adr/`。
 
 - driver 是 **postgres.js**，不是 `@neondatabase/serverless`（決策 0003）。
   地端 docker 與 Neon 用同一個 driver，只差 `DATABASE_URL`。
@@ -61,7 +70,7 @@ Next.js（App Router）+ Postgres + Drizzle + Vercel。部署與 Neon 的操作�
 ## 登入與人員
 
 **Google 登入，自己寫 OAuth。不要裝 Auth.js／NextAuth／jose**
-（理由見 `docs/02-decisions.md` 0005）。`APP_PASSWORD` 與 `lib/people.ts`
+（理由見 `docs/adr/0005-google-oauth.md`）。`APP_PASSWORD` 與 `lib/people.ts`
 已經刪掉，不要復活它們。
 
 - authorization code flow + PKCE，只要 `openid email profile` 這組 scope。
@@ -136,7 +145,7 @@ npm run db:migrate   套用 migration（沒有掛在 build 上，要自己跑）
 ## 付款憑證
 
 轉帳／刷卡成功的截圖存在 `receipts` 表的 `bytea` 欄位（Neon 裡，不是外部物件
-儲存——理由見 `docs/02-decisions.md` 0004）。原圖只能從 `/img/[id]` 拿。
+儲存——理由見 `docs/adr/0004-receipts-in-neon.md`）。原圖只能從 `/img/[id]` 拿。
 上傳走 server action，**不收 SVG**（同源 SVG 等於讓上傳檔案在自家網域跑 script）。
 
 ⚠️ `/img/[id]` **必須自己檢查呼叫者是不是該專案的成員**。它原本的註解寫
@@ -145,7 +154,7 @@ npm run db:migrate   套用 migration（沒有掛在 build 上，要自己跑）
 
 ## 待決事項
 
-- 目前沒有。專案化改建的四個階段見 `docs/03-architecture.md` 的進度表。
+- 目前沒有。專案化改建的四個階段見 `docs/02-architecture.md` 的進度表。
 
 ## 回覆慣例
 

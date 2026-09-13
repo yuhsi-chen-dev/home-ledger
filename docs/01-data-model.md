@@ -4,8 +4,10 @@
 
 所有金額都是 **TWD 整數元**。沒有小數、沒有匯率、不用浮點數做判斷。
 
-表的關聯圖見 `docs/03-architecture.md` §2；為什麼長這樣見 `docs/02-decisions.md`
-的 0006（ID 當主鍵）、0007（分帳）、0008（性質）。
+表的關聯圖見 `docs/02-architecture.md` §2；為什麼長這樣見 `docs/adr/` 的
+[0006](adr/0006-projects-and-ids.md)（ID 當主鍵）、
+[0007](adr/0007-split-participants.md)（分帳）、
+[0008](adr/0008-expense-nature.md)（性質）。
 
 ---
 

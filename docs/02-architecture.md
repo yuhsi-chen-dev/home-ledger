@@ -5,7 +5,7 @@
 
 「築巢收據」從整個 app 降級成其中一個專案。
 
-改動的理由與取捨見 `docs/02-decisions.md` 的 0005～0009；欄位定義見
+改動的理由與取捨見 [`docs/adr/`](adr/README.md) 的 0005～0009；欄位定義見
 `docs/01-data-model.md`。
 
 ## 實作進度

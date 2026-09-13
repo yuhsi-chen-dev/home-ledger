@@ -6,7 +6,7 @@
 「築巢收據」——新家從裝潢到入住的所有支出與分帳——是其中一個專案。
 
 > **正在從「一本裝潢帳」改建成「專案制記帳 app」。**
-> 進度表與架構全景見 `docs/03-architecture.md`。
+> 進度表與架構全景見 `docs/02-architecture.md`。
 
 ## 這個 app 要回答的問題
 
@@ -27,8 +27,8 @@
 |---|---|
 | `docs/00-pain-points.md` | 當初為什麼要做這個（築巢收據的痛點） |
 | `docs/01-data-model.md` | 每一張表的欄位定義與衍生計算 |
-| `docs/02-decisions.md` | 決策紀錄（0001～0009），含被取代的決策 |
-| `docs/03-architecture.md` | **架構全景 ASCII 圖**：分層、表關聯、登入流程、邀請流程 |
+| `docs/02-architecture.md` | **架構全景 ASCII 圖**：分層、表關聯、登入流程、邀請流程 |
+| `docs/adr/` | 決策紀錄（ADR），一個檔案一項決策。索引在 `docs/adr/README.md` |
 
 ## 技術棧
 
@@ -41,7 +41,7 @@
 | 邀請 | 產生連結自己傳 LINE，**不寄 email**（決策 0009） |
 
 與 `../OW64` 同一套基礎建設，部署操作手冊可參考 `../OW64/docs/deploy.md`。
-理由與「哪些部分不照抄」見 `docs/02-decisions.md`。
+理由與「哪些部分不照抄」見 `docs/adr/`。
 
 ## 狀態
 
